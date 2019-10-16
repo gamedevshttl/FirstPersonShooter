@@ -66,6 +66,7 @@ void AFirstPersonCharacter::BeginPlay()
 	if (GunBlueprint) {
 		Gun = GetWorld()->SpawnActor<AGun>(GunBlueprint);
 		Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+		Gun->AnimInstance = Mesh1P->GetAnimInstance();
 	}
 
 	// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
@@ -94,7 +95,7 @@ void AFirstPersonCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	// Bind fire event
-	//PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFirstPersonCharacter::OnFire);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFirstPersonCharacter::OnFire);
 
 	// Enable touchscreen input
 	EnableTouchscreenMovement(PlayerInputComponent);
@@ -113,8 +114,6 @@ void AFirstPersonCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AFirstPersonCharacter::LookUpAtRate);
 }
-
-
 
 void AFirstPersonCharacter::OnResetVR()
 {
@@ -200,6 +199,12 @@ void AFirstPersonCharacter::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(GetActorRightVector(), Value);
 	}
+}
+
+void AFirstPersonCharacter::OnFire()
+{
+	if (Gun)
+		Gun->OnFire();
 }
 
 void AFirstPersonCharacter::TurnAtRate(float Rate)
